@@ -1,0 +1,8 @@
+screenshot-*.png
+desktop-*.png
+window-*.png
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+PUBLISHING.md

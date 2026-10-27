@@ -1,0 +1,8 @@
+{
+  "name": "linux-desktop-remote",
+  "description": "Control a remote or local Linux X11 desktop over SSH with AT-SPI semantic UI lookup plus xdotool and ImageMagick.",
+  "author": {
+    "name": "yangben2019"
+  },
+  "license": "MIT"
+}

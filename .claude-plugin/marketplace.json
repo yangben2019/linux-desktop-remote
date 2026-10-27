@@ -1,0 +1,13 @@
+{
+  "name": "desktop-automation",
+  "owner": {
+    "name": "yangben2019"
+  },
+  "plugins": [
+    {
+      "name": "linux-desktop-remote",
+      "source": "./",
+      "description": "Control a remote or local Linux X11 desktop over SSH with AT-SPI semantic UI lookup plus xdotool and ImageMagick."
+    }
+  ]
+}
