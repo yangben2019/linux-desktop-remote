@@ -1,6 +1,6 @@
 ---
 name: linux-desktop-remote
-description: Control a remote or local Linux X11 desktop over SSH with AT-SPI semantic UI lookup plus xdotool and ImageMagick: locate and click widgets by name (no screenshots needed), take screenshots, type text, manage windows, and launch applications. Use when asked to open apps, click buttons, type into fields, inspect the desktop, or automate GUI workflows on any X11 Linux desktop (set REMOTE_HOST=local to operate the current machine).
+description: 'Control a remote or local Linux X11 desktop over SSH with AT-SPI semantic UI lookup plus xdotool and ImageMagick: locate and click widgets by name (no screenshots needed), take screenshots, type text, manage windows, and launch applications. Use when asked to open apps, click buttons, type into fields, inspect the desktop, or automate GUI workflows on any X11 Linux desktop (set REMOTE_HOST=local to operate the current machine).'
 ---
 
 # Linux Remote Desktop Control
