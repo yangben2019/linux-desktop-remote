@@ -6,7 +6,7 @@
 
 A Claude Code skill that lets Claude operate a **Linux X11 desktop** over SSH — or the local machine — using **AT-SPI semantic UI lookup** plus `xdotool` and ImageMagick. Find widgets by name, invoke their actions without screenshots, type, click, manage windows, and launch applications.
 
-Works with Kylin V4/V10, UOS, and other X11 desktops on **x86_64 and Phytium/ARM64 (aarch64)**.
+Works with any X11 desktop on **x86_64 and ARM64 (aarch64)**.
 
 ## Why semantic first?
 
@@ -145,7 +145,7 @@ This skill can control a real desktop. Run it only on machines you are authorize
 
 ## Contributing
 
-Issues and PRs are welcome. Please include the target desktop (Kylin/UOS/other), architecture, and the exact commands and output involved.
+Issues and PRs are welcome. Please include the target desktop environment, architecture, and the exact commands and output involved.
 
 ## License
 

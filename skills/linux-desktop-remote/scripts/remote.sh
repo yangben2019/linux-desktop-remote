@@ -25,7 +25,7 @@ done
 SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile="$KNOWN" -o ConnectTimeout=8)
 
 # AT-SPI needs the graphical session's DBUS bus; SSH/non-interactive shells usually lack it.
-# Compatible with systemd (/run/user/UID/bus, Kylin V10) and legacy ~/.dbus/session-bus (Kylin V4).
+# Compatible with systemd sessions (/run/user/UID/bus) and legacy ~/.dbus/session-bus.
 BUS_SNIPPET='if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then for b in "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/bus" "/run/user/$(id -u)/bus"; do if [ -S "$b" ]; then export DBUS_SESSION_BUS_ADDRESS="unix:path=$b"; break; fi; done; fi; if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then f=$(ls -t "$HOME"/.dbus/session-bus/*-0 2>/dev/null | head -1); [ -n "$f" ] && export DBUS_SESSION_BUS_ADDRESS=$(sed -n "s/^DBUS_SESSION_BUS_ADDRESS=//p" "$f" | tail -1); fi; '
 ATSPI_CHECK="/usr/bin/python3 -c 'import gi; gi.require_version(\"Atspi\", \"2.0\"); from gi.repository import Atspi; Atspi.get_desktop(0)'"
 REMOTE_HELPER=/tmp/.linux-atspi-helper.py
@@ -43,7 +43,7 @@ arch_of() {
 arch_label() {
   case "$1" in
     amd64) echo 'x86_64' ;;
-    arm64) echo 'aarch64 (Phytium/ARM64)' ;;
+    arm64) echo 'aarch64/ARM64' ;;
     *) echo "$1" ;;
   esac
 }
@@ -147,7 +147,7 @@ enable_a11y_local() {
     return 0
   fi
   if ! gsettings list-schemas 2>/dev/null | grep -qx 'org.gnome.desktop.interface'; then
-    echo "[hint] No org.gnome.desktop.interface schema (may happen on UKUI/Kylin V10); enable accessibility manually in system settings" >&2
+    echo "[hint] No org.gnome.desktop.interface schema (may happen on some desktops); enable accessibility manually in system settings" >&2
     return 0
   fi
   val=$(gsettings get org.gnome.desktop.interface toolkit-accessibility 2>/dev/null || echo unknown)
@@ -161,7 +161,7 @@ enable_a11y_local() {
 }
 
 enable_a11y_remote() {
-  ssh_run 'if ! command -v gsettings >/dev/null 2>&1; then echo "[hint] gsettings not found on the target; enable accessibility manually in system settings" >&2; exit 0; fi; if ! gsettings list-schemas 2>/dev/null | grep -qx "org.gnome.desktop.interface"; then echo "[hint] No org.gnome.desktop.interface schema on the target (may happen on UKUI/Kylin V10); enable accessibility manually in system settings" >&2; exit 0; fi; v=$(gsettings get org.gnome.desktop.interface toolkit-accessibility 2>/dev/null || echo unknown); if [ "$v" = "true" ]; then echo "[target] Accessibility bridge already enabled"; else gsettings set org.gnome.desktop.interface toolkit-accessibility true >/dev/null 2>&1 && echo "[target] Enabled accessibility bridge (toolkit-accessibility)" || echo "[hint] Failed to enable the accessibility bridge on the target; enable it manually in system settings" >&2; fi'
+  ssh_run 'if ! command -v gsettings >/dev/null 2>&1; then echo "[hint] gsettings not found on the target; enable accessibility manually in system settings" >&2; exit 0; fi; if ! gsettings list-schemas 2>/dev/null | grep -qx "org.gnome.desktop.interface"; then echo "[hint] No org.gnome.desktop.interface schema on the target (may happen on some desktops); enable accessibility manually in system settings" >&2; exit 0; fi; v=$(gsettings get org.gnome.desktop.interface toolkit-accessibility 2>/dev/null || echo unknown); if [ "$v" = "true" ]; then echo "[target] Accessibility bridge already enabled"; else gsettings set org.gnome.desktop.interface toolkit-accessibility true >/dev/null 2>&1 && echo "[target] Enabled accessibility bridge (toolkit-accessibility)" || echo "[hint] Failed to enable the accessibility bridge on the target; enable it manually in system settings" >&2; fi'
 }
 
 atspi_helper_path() {
@@ -356,7 +356,7 @@ Connection (environment variables):
 
 Commands:
   ensure                     Detect architecture and install sshpass, xdotool, and AT-SPI bindings; enable accessibility
-  arch                       Show controller/target architecture (x86_64 / Phytium ARM64)
+  arch                       Show controller/target architecture (x86_64 / ARM64)
   wake                       Unlock/wake the screen (run when screenshots are black)
   shot [file]                Full-screen screenshot (default: screenshot-TIME.png)
   shot-desktop [file]        Desktop window only; avoids browser overlays

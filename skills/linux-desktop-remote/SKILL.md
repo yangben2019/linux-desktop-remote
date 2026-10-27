@@ -1,6 +1,6 @@
 ---
 name: linux-desktop-remote
-description: Control a remote or local Linux X11 desktop over SSH with AT-SPI semantic UI lookup plus xdotool and ImageMagick: locate and click widgets by name (no screenshots needed), take screenshots, type text, manage windows, and launch applications. Use when asked to open apps, click buttons, type into fields, inspect the desktop, or automate GUI workflows on Kylin/UOS or any X11 Linux machine (set REMOTE_HOST=local to operate the current machine).
+description: Control a remote or local Linux X11 desktop over SSH with AT-SPI semantic UI lookup plus xdotool and ImageMagick: locate and click widgets by name (no screenshots needed), take screenshots, type text, manage windows, and launch applications. Use when asked to open apps, click buttons, type into fields, inspect the desktop, or automate GUI workflows on any X11 Linux desktop (set REMOTE_HOST=local to operate the current machine).
 ---
 
 # Linux Remote Desktop Control
@@ -10,8 +10,8 @@ Operate an X11 desktop on a remote machine over SSH. Everything goes through `sc
 ## Prerequisites
 
 - The controller can SSH to the target; the target runs an **X11** desktop with `xdotool`, `import`, and `wmctrl` (the setup command installs what is missing).
-- Works with Kylin V4/V10, UOS, and other X11 desktops; controller and target may be **x86_64 or Phytium/ARM64 (aarch64)**. `ensure` detects both architectures and picks apt or the matching offline package in `debs/`.
-- Semantic control needs the AT-SPI bindings (`python3-gi` + `gir1.2-atspi-2.0`) and the graphical session's DBUS. Kylin/UOS normally ship these; `ensure` detects and installs what is missing.
+- Works with any X11 desktop; controller and target may be **x86_64 or ARM64 (aarch64)**. `ensure` detects both architectures and picks apt or the matching offline package in `debs/`.
+- Semantic control needs the AT-SPI bindings (`python3-gi` + `gir1.2-atspi-2.0`) and the graphical session's DBUS. These are commonly preinstalled; `ensure` detects and installs what is missing.
 - Connection settings come from environment variables (do not put passwords in your shell history; use `read -s SSHPASS` or have the user export it):
 
 ```bash
@@ -48,12 +48,12 @@ It checks and installs:
 - `sshpass` on the controller if missing → apt first, then the matching offline package in `debs/`;
 - `xdotool` on the target if missing → apt first (ARM64 aware), then the matching offline package in `debs/`;
 - AT-SPI bindings on the target (`python3-gi`, `gir1.2-atspi-2.0`) → apt, for the target architecture;
-- Enables `toolkit-accessibility` for the graphical session (with fallbacks for the Kylin V4 `org.gnome.desktop.interface` vs. V10/UKUI layouts), and deploys the AT-SPI helper to `/tmp` on the target;
+- Enables `toolkit-accessibility` for the graphical session (with fallbacks for different desktop layouts), and deploys the AT-SPI helper to `/tmp` on the target;
 - Checks `import` and `wmctrl`, then prints the number of accessible applications.
 
-Offline packages cover both x86_64 and Phytium ARM64: `xdotool`/`libxdo3`/`sshpass` are split by `_amd64.deb` / `_arm64.deb` under `debs/`, and `ensure` selects by target architecture. There is no offline package for the AT-SPI bindings; that step needs apt on the target.
+Offline packages cover both x86_64 and ARM64: `xdotool`/`libxdo3`/`sshpass` are split by `_amd64.deb` / `_arm64.deb` under `debs/`, and `ensure` selects by target architecture. There is no offline package for the AT-SPI bindings; that step needs apt on the target.
 
-Installation needs root and network (for apt): the script installs directly as root, otherwise it tries passwordless sudo and prints manual commands on failure. **Explain and get user consent before escalating privileges or running commands manually.** Continue only after `ensure` reports the environment is ready. If it says the environment is ready but no accessible applications were found, restart the target application (GTK apps started before accessibility was enabled do not register with AT-SPI); on V10/UKUI without a `toolkit-accessibility` key, enable accessibility manually in system settings.
+Installation needs root and network (for apt): the script installs directly as root, otherwise it tries passwordless sudo and prints manual commands on failure. **Explain and get user consent before escalating privileges or running commands manually.** Continue only after `ensure` reports the environment is ready. If it says the environment is ready but no accessible applications were found, restart the target application (GTK apps started before accessibility was enabled do not register with AT-SPI); if the desktop lacks a `toolkit-accessibility` key, enable accessibility manually in system settings.
 
 ## Workflow
 
@@ -113,7 +113,7 @@ Prefer AT-SPI for desktop icons: `ui-find "Home" --role icon` / `ui-click "Home"
 | Command | Description |
 |---|---|
 | `ensure` | Detect architecture, install sshpass/xdotool/AT-SPI bindings, enable accessibility, deploy helper |
-| `arch` | Show controller/target architecture (x86_64 / Phytium ARM64) |
+| `arch` | Show controller/target architecture (x86_64 / ARM64) |
 | `wake` | Unlock/wake the screen; run when screenshots are black |
 | `shot [file]` | Full-screen screenshot |
 | `shot-desktop [file]` | Desktop window only; avoids browser overlays |
@@ -148,7 +148,7 @@ Options for `ui-find` / `ui-focus` / `ui-click`: `--contains`, `--app <app>`, `-
 - If input is unreliable: `activate`, wait 1 s, then `type`; always `move` before a coordinate click. **Never `type` without confirming the active window.**
 - Window titles can collide; `activate` takes the first match. Use `windows` for exact titles or `ui-windows` geometry to disambiguate.
 - **Architecture matters**: only `xdotool`/`libxdo3`/`sshpass` offline packages are split into `amd64`/`arm64`; the AT-SPI helper is pure Python. Check both sides with `ensure`/`arch` each session and never mix architectures.
-- **Kylin V10**: the DBUS session bus is usually at `/run/user/UID/bus` (V4: `~/.dbus/session-bus/*-0`); the script handles both. If UKUI lacks a `toolkit-accessibility` key, enable accessibility manually in system settings.
+- **Systemd sessions**: the DBUS session bus is usually at `/run/user/UID/bus` (legacy sessions: `~/.dbus/session-bus/*-0`); the script handles both. If the desktop lacks a `toolkit-accessibility` key, enable accessibility manually in system settings.
 - AT-SPI depends on the graphical session's DBUS session bus; `remote.sh` fills in `DBUS_SESSION_BUS_ADDRESS` automatically.
 - The helper always runs under `/usr/bin/python3` (the system Python is the one with `gi`; a default `python3` may be 3.10 without it).
 - Actions are exposed by the application: desktop icons have `open`, menu items have `click`, list items have `activate`; when there is no action, fall back to the coordinates printed with `NOACTION`.
